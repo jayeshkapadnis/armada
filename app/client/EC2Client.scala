@@ -1,13 +1,11 @@
 package client
 
-import com.amazonaws.AmazonWebServiceRequest
 import com.amazonaws.auth.AWSCredentialsProvider
-import com.amazonaws.handlers.AsyncHandler
-import com.amazonaws.services.ec2.model.{AuthorizeSecurityGroupIngressResult, CreateSecurityGroupRequest, CreateSecurityGroupResult}
+import com.amazonaws.services.ec2.model._
 import com.amazonaws.services.ec2.{AmazonEC2Async, AmazonEC2AsyncClient}
-import models.SecurityGroupIngressRequest
+import models.{SecurityGroupIngressRequest, SpotInstanceRequest}
 
-import scala.concurrent.{Future, Promise}
+import scala.concurrent.Future
 
 object EC2Client {
 
@@ -18,7 +16,6 @@ object EC2Client {
     new EC2Client(builder.build())
   }
 }
-
 
 
 class EC2Client(asyncClient: AmazonEC2Async){
@@ -33,14 +30,11 @@ class EC2Client(asyncClient: AmazonEC2Async){
     asFuture(asyncClient.authorizeSecurityGroupIngressAsync)(request)
   }
 
-  class AwsAsyncPromiseHandler[R <: AmazonWebServiceRequest, T](promise: Promise[T]) extends AsyncHandler[R, T] {
-    def onError(e: Exception): Unit = promise failure e
-    def onSuccess(r: R, t: T): Unit = promise success t
-  }
-
-  def asFuture[R <: AmazonWebServiceRequest, T](underlyingSdkMethod: (R, AsyncHandler[R, T]) => java.util.concurrent.Future[T]): R => Future[T] = { awsRequest =>
-    val p = Promise[T]()
-    underlyingSdkMethod(awsRequest, new AwsAsyncPromiseHandler(p))
-    p.future
+  def createSpotInstance(request: SpotInstanceRequest): Future[DescribeSpotInstanceRequestsResult] ={
+    asFuture(asyncClient.requestSpotInstancesAsync)(SpotInstanceRequest(request)).flatMap{ r =>
+      val describeRequest = new DescribeSpotInstanceRequestsRequest()
+        .withSpotInstanceRequestIds(r.getSdkResponseMetadata.getRequestId)
+      asFuture(asyncClient.describeSpotInstanceRequestsAsync)(describeRequest)
+    }
   }
 }

@@ -12,6 +12,7 @@ libraryDependencies += "net.kaliber" %% "play-s3" % "9.0.0"
 libraryDependencies += "com.lightbend.akka" %% "akka-stream-alpakka-s3" % "0.20"
 libraryDependencies += "com.github.seratch" %% "awscala-ec2" % "0.8.0"
 libraryDependencies += "com.amazonaws" % "aws-java-sdk-ec2" % "1.11.342"
+libraryDependencies += "com.amazonaws" % "aws-java-sdk-ecs" % "1.11.342"
 libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test
 
 // Adds additional packages into Twirl

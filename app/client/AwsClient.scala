@@ -10,6 +10,7 @@ import akka.stream.scaladsl.Sink
 import akka.util.ByteString
 import com.amazonaws.services.ec2.model.AuthorizeSecurityGroupIngressResult
 import javax.inject._
+import models.SpotInstanceRequest
 
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
@@ -33,6 +34,10 @@ class AwsClient @Inject()(system: ActorSystem, materializer: Materializer){
         case Failure(e) => sys.error(s"Error while getting local host: [${e.getMessage}]")
       }
     }
+  }
+
+  def createSpotInstance(request: SpotInstanceRequest): Unit ={
+    ec2Client.createSpotInstance(request)
   }
 
 }
